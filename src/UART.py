@@ -39,5 +39,8 @@ class UART:
             return "GAS"
         elif(message_type == "h"):
             return "HEART"
+    
+    def close(self):
+        self.serial.close()
         
     
