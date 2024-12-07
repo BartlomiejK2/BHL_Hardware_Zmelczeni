@@ -14,7 +14,9 @@ class Orientation:
     z: float
 
 class IMU:
-    def __init__(self, address):
+    def __init__(self, address, time_delta):
+        self.time_delta = time_delta
+        self.orientation = Orientation(0,0,0)
         self.sensor = mpu6050.mpu6050(address)
         self.sensor.set_accel_range(self.sensor.ACCEL_RANGE_8G)
         self.sensor.set_gyro_range(self.sensor.GYRO_RANGE_250DEG)
@@ -30,5 +32,10 @@ class IMU:
     
     def get_orientation(self):
         gyro_data = self.sensor.get_gyro_data()
-        orientation = Orientation(gyro_data["x"], gyro_data["y"], gyro_data["z"])
-        return orientation
+        dx = gyro_data["x"] * self.time_delta**2 / 2
+        dy = gyro_data["y"] * self.time_delta**2 / 2
+        dz = gyro_data["z"] * self.time_delta**2 / 2
+        self.orientation.x += dx
+        self.orientation.y += dy
+        self.orientation.z += dz 
+        return self.orientation

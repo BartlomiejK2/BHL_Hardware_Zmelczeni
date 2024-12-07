@@ -6,6 +6,9 @@ import threading
 import queue
 import time
 
+IMU_SLEEP_TIME = 0.01
+UART_SLEEP_TIME = 0.01
+
 def ImuThread(IMU: IMU.IMU, accel_queue: queue.Queue, orient_queue: queue.Queue):
     while True:
         if(accel_queue.full()):
@@ -14,7 +17,7 @@ def ImuThread(IMU: IMU.IMU, accel_queue: queue.Queue, orient_queue: queue.Queue)
         if(orient_queue.full()):
             orient_queue.get()
         orient_queue.put(IMU.get_orientation())
-        time.sleep(0.01)
+        time.sleep(IMU_SLEEP_TIME)
 
 def UartThread(uart: UART.UART, pulse_queue: queue.Queue, gas_queue: queue.Queue):
     while True:
@@ -32,7 +35,7 @@ def UartThread(uart: UART.UART, pulse_queue: queue.Queue, gas_queue: queue.Queue
             if(pulse_queue.full()):
                 pulse_queue.get()
             pulse_queue.put(value)
-        time.sleep(0.005)
+        time.sleep(UART_SLEEP_TIME)
 
 
 # TODO
@@ -45,8 +48,8 @@ def main():
     GPIO.setwarnings(False)
 
     # Inicjalizacja IMU, termometru i UART'a
-    imu_sensor = IMU.IMU(0x68)
-    temp_sensor = TempSensor.TemperatureSensor()
+    imu_sensor = IMU.IMU(0x68, IMU_SLEEP_TIME)
+    #temp_sensor = TempSensor.TemperatureSensor()
     #uart = UART.UART(PORT)
 
     # Kolejki dla danych z czujników
@@ -77,3 +80,4 @@ def main():
 
 
     
+main()
