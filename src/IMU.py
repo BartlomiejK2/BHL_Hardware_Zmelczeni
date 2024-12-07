@@ -31,3 +31,4 @@ class IMU:
     def get_orientation(self):
         gyro_data = self.sensor.get_gyro_data()
         orientation = Orientation(gyro_data["x"], gyro_data["y"], gyro_data["z"])
+        return orientation
