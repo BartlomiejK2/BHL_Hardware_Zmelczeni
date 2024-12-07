@@ -3,7 +3,7 @@ import RPi.GPIO as GPIO
 import w1thermsensor
 
 
-class TemperatureSensor():
+class TemperatureSensor:
     def __init__(self):
         self.sensor = w1thermsensor.W1ThermSensor()
 

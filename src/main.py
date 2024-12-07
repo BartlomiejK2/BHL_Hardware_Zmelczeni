@@ -1,7 +1,8 @@
 import TemperatureSensor as TempSensor
-import RPi._GPIO as GPIO
+import RPi.GPIO as GPIO
 
 def main():
 
+    # Inicjalizacja systemu 
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
