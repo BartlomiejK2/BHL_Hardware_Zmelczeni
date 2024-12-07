@@ -6,22 +6,23 @@ import threading
 import queue
 import time
 
-IMU_SLEEP_TIME = 0.01
+IMU_SLEEP_TIME = 0.001
 UART_SLEEP_TIME = 0.01
 
 def ImuThread(IMU: IMU.IMU, accel_queue: queue.Queue, orient_queue: queue.Queue, temp_queue: queue.Queue):
     while True:
+        data = IMU.get_data()
         if(accel_queue.full()):
            accel_queue.get()
-        accel_queue.put(IMU.get_acceleration())
+        accel_queue.put(data[0])
 
         if(orient_queue.full()):
             orient_queue.get()
-        orient_queue.put(IMU.get_orientation())
+        orient_queue.put(data[1])
 
         if(temp_queue.full()):
             temp_queue.get()
-        temp_queue.put(IMU.get_temperature())
+        temp_queue.put(data[2])
         
         time.sleep(IMU_SLEEP_TIME)
 
@@ -54,7 +55,7 @@ def main():
     GPIO.setwarnings(False)
 
     # Inicjalizacja IMU, termometru i UART'a
-    imu_sensor = IMU.IMU(0x68, IMU_SLEEP_TIME)
+    imu_sensor = IMU.IMU(0x68)
     #temp_sensor = TempSensor.TemperatureSensor()
     #uart = UART.UART(PORT)
 
@@ -66,20 +67,24 @@ def main():
     gas = queue.Queue(1)
 
     # Wątki dla czujników
-    imu_thread = threading.Thread(target = ImuThread, args = (imu_sensor, acceleration, orientation))
+    imu_thread = threading.Thread(target = ImuThread, args = (imu_sensor, acceleration, orientation, temperature))
     #uart_thread = threading.Thread(target = UartThread, args = (uart, pulse, gas))
 
     imu_thread.start()
     #uart_thread.start()
 
     # Głowny thread:
+    orientation_string = ""
+    acceleration_string = ""
+    temperature_string = ""
     while True:
         if(orientation.full()):
-            print(f"ORIENTACJA: {orientation.get()}")
+            orientation_string = f"ORIENTACJA: {orientation.get()}\n"
         if(acceleration.full()):
-            print(f"ACCELERATION: {acceleration.get()}")
+            acceleration_string = f"ACCELERATION: {acceleration.get()}\n"
         if(temperature.full()):
-            print(f"TEMPERATURE: {temperature.get()}")
+            temperature_string = f"TEMPERATURE: {temperature.get()}"
+        print(orientation_string + acceleration_string + temperature_string, flush = True)
 
     imu_thread.join()
     #uart_thread.join()
