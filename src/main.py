@@ -9,14 +9,20 @@ import time
 IMU_SLEEP_TIME = 0.01
 UART_SLEEP_TIME = 0.01
 
-def ImuThread(IMU: IMU.IMU, accel_queue: queue.Queue, orient_queue: queue.Queue):
+def ImuThread(IMU: IMU.IMU, accel_queue: queue.Queue, orient_queue: queue.Queue, temp_queue: queue.Queue):
     while True:
         if(accel_queue.full()):
            accel_queue.get()
-        accel_queue.put(IMU.get_acceleration())   
+        accel_queue.put(IMU.get_acceleration())
+
         if(orient_queue.full()):
             orient_queue.get()
         orient_queue.put(IMU.get_orientation())
+
+        if(temp_queue.full()):
+            temp_queue.get()
+        temp_queue.put(IMU.get_temperature())
+        
         time.sleep(IMU_SLEEP_TIME)
 
 def UartThread(uart: UART.UART, pulse_queue: queue.Queue, gas_queue: queue.Queue):
@@ -55,6 +61,7 @@ def main():
     # Kolejki dla danych z czujników
     acceleration = queue.Queue(1)
     orientation = queue.Queue(1)
+    temperature = queue.Queue(1)
     pulse = queue.Queue(1)
     gas = queue.Queue(1)
 
@@ -71,7 +78,8 @@ def main():
             print(f"ORIENTACJA: {orientation.get()}")
         if(acceleration.full()):
             print(f"ACCELERATION: {acceleration.get()}")
-    
+        if(temperature.full()):
+            print(f"TEMPERATURE: {temperature.get()}")
 
     imu_thread.join()
     #uart_thread.join()

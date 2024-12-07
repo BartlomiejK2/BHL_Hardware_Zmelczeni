@@ -32,9 +32,9 @@ class IMU:
     
     def get_orientation(self):
         gyro_data = self.sensor.get_gyro_data()
-        dx = gyro_data["x"] * self.time_delta**2 / 2
-        dy = gyro_data["y"] * self.time_delta**2 / 2
-        dz = gyro_data["z"] * self.time_delta**2 / 2
+        dx = gyro_data["x"] * self.time_delta
+        dy = gyro_data["y"] * self.time_delta
+        dz = gyro_data["z"] * self.time_delta
         self.orientation.x += dx
         self.orientation.y += dy
         self.orientation.z += dz 
