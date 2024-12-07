@@ -1,4 +1,4 @@
-import TemperatureSensor as TempSensor
+#import TemperatureSensor as TempSensor
 import IMU 
 import RPi.GPIO as GPIO
 import UART
@@ -47,7 +47,7 @@ def main():
     # Inicjalizacja IMU, termometru i UART'a
     imu_sensor = IMU.IMU(0x68)
     temp_sensor = TempSensor.TemperatureSensor()
-    uart = UART.UART(PORT)
+    #uart = UART.UART(PORT)
 
     # Kolejki dla danych z czujników
     acceleration = queue.Queue(1)
@@ -57,17 +57,21 @@ def main():
 
     # Wątki dla czujników
     imu_thread = threading.Thread(target = ImuThread, args = (imu_sensor, acceleration, orientation))
-    uart_thread = threading.Thread(target = UartThread, args = (uart, pulse, gas))
+    #uart_thread = threading.Thread(target = UartThread, args = (uart, pulse, gas))
 
     imu_thread.start()
-    uart_thread.start()
+    #uart_thread.start()
 
     # Głowny thread:
-
+    while True:
+        if(orientation.full()):
+            print(f"ORIENTACJA: {orientation.get()}")
+        if(acceleration.full()):
+            print(f"ACCELERATION: {acceleration.get()}")
     
 
     imu_thread.join()
-    uart_thread.join()
+    #uart_thread.join()
 
     uart.close()
 
