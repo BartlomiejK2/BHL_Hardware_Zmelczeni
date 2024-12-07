@@ -1,5 +1,5 @@
 import serial
-
+import struct
 
 
 class UART:
@@ -26,7 +26,7 @@ class UART:
         if(self.data_string is None):
             print("Nie dostales zadnej wiadomosci, najpierw cos odbierz!")
         type = self.__check_message_type()
-        value = int("0x" + self.data_string, 0)
+        value = struct.unpack('!f', bytes.fromhex(self.data_string))[0]
         self.data_string = None
         return {type: value}
 
