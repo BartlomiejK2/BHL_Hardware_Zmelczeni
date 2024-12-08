@@ -8,7 +8,7 @@ frame_width = 320
 frame_height = 240
 fps = 15
 cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"  # Haar cascade path
-tflite_model_path = "model.tflite"  # Replace with your .tflite model path
+tflite_model_path = "/home/bartek/myenv/BHL_Hardware_Zmelczeni/src/raspberry_pi/model.tflite"  # Replace with your .tflite model path
 
 # Load face detection cascade
 face_cascade = cv2.CascadeClassifier(cascade_path)
