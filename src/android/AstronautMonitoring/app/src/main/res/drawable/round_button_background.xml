@@ -1,0 +1,6 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- When checked (button on), use red -->
+    <item android:drawable="@android:color/holo_red_light" android:state_checked="true"/>
+    <!-- When unchecked (button off), use gray -->
+    <item android:drawable="@android:color/darker_gray" android:state_checked="false"/>
+</selector>

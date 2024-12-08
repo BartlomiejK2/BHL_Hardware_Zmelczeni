@@ -1,0 +1,61 @@
+<!-- res/layout/item_astronaut.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Your layout content -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/profileImageView"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="left"
+        app:shapeAppearanceOverlay="@style/CircularImage"
+        android:src="@drawable/kotek_1" />
+
+    <!-- Text details -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/nameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/vitalsTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vitals" />
+
+        <TextView
+            android:id="@+id/emotionalStateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Emotional State" />
+    </LinearLayout>
+
+    <!-- Video feed toggle button -->
+    <RadioGroup
+        android:id="@+id/videoFeedRadioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"> <!-- RadioGroup to ensure one button can be selected at a time -->
+
+        <ToggleButton
+            android:id="@+id/videoFeedToggleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="Stop Feed"
+            android:textOff="Start Feed"
+            android:background="@drawable/round_button_background" />  <!-- Apply the custom background -->
+
+    </RadioGroup>
+</LinearLayout>
