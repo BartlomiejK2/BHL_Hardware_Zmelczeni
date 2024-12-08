@@ -5,9 +5,13 @@ import UART
 import threading
 import queue
 import time
+import EmotionRecognition
+
 
 IMU_SLEEP_TIME = 0.001
 UART_SLEEP_TIME = 0.01
+EMOTION_SLEEP_TIME = 0.1
+MAIN_SLEEP_TIME = 0.1
 
 def ImuThread(IMU: IMU, accel_queue: queue.Queue, orient_queue: queue.Queue, temp_queue: queue.Queue):
     while True:
@@ -44,6 +48,14 @@ def UartThread(uart: UART.UART, pulse_queue: queue.Queue, gas_queue: queue.Queue
         pulse_queue.put(message[1])
         time.sleep(UART_SLEEP_TIME)
 
+def EmotionThread(emotion_recognition: EmotionRecognition.EmotionRecognition, emotion_queue: queue.Queue):
+    while True:
+        emotion = emotion_recognition.get_emotion()
+        if(emotion != None):
+            if(emotion_queue.full()):
+                emotion_queue.get()
+            emotion_queue.put(emotion)
+        time.sleep(EMOTION_SLEEP_TIME)
 
 # TODO
 PORT = "/dev/ttyUSB0"
@@ -58,17 +70,21 @@ def main():
     imu_sensor = IMU(0x68)
     #temp_sensor = TempSensor.TemperatureSensor()
     uart = UART.UART(PORT)
+    emotion_recognition = EmotionRecognition.EmotionRecognition()
 
-    # Kolejki dla danych z czujników
+
+    # Kolejki dla danych z czujników i kamery
     acceleration = queue.Queue(1)
     orientation = queue.Queue(1)
     temperature = queue.Queue(1)
     pulse = queue.Queue(1)
     gas = queue.Queue(1)
+    emotion = queue.Queue(1)
 
     # Wątki dla czujników
     imu_thread = threading.Thread(target = ImuThread, args = (imu_sensor, acceleration, orientation, temperature))
     uart_thread = threading.Thread(target = UartThread, args = (uart, pulse, gas))
+    emotion_thread = threading.Thread(target= EmotionThread, args = (emotion_recognition, emotion))
 
     imu_thread.start()
     uart_thread.start()
@@ -79,23 +95,33 @@ def main():
     temperature_string = ""
     pulse_string = ""
     gas_string = ""
-    while True:
-        if(orientation.full()):
-            orientation_string = f"ORIENTACJA: {orientation.get()}\n"
-        if(acceleration.full()):
-            acceleration_string = f"ACCELERATION: {acceleration.get()}\n"
-        if(temperature.full()):
-            temperature_string = f"TEMPERATURE: {temperature.get()}\n"
-        if(pulse.full()):
-            pulse_string = f"PULSE: {pulse.get()}\n"
-        if(gas.full()):
-            gas_string = f"GAS: {gas.get()}\n"
-        print(orientation_string + acceleration_string + temperature_string +
-              pulse_string + gas_string, flush = True)
+    emotion_string = ""
+    try:
+        while True:
+            if(orientation.full()):
+                orientation_string = f"ORIENTACJA: {orientation.get()}\n"
+            if(acceleration.full()):
+                acceleration_string = f"ACCELERATION: {acceleration.get()}\n"
+            if(temperature.full()):
+                temperature_string = f"TEMPERATURE: {temperature.get()}\n"
+            if(pulse.full()):
+                pulse_string = f"PULSE: {pulse.get()}\n"
+            if(gas.full()):
+                gas_string = f"GAS: {gas.get()}\n"
+            if(emotion.full()):
+                emotion_string = f"EMOTION: {emotion.get()}\n"
+            print(orientation_string + acceleration_string + temperature_string +
+                  pulse_string + gas_string + emotion_string, flush = True)
+            time.sleep(MAIN_SLEEP_TIME)
+            
+    except KeyboardInterrupt:
+        print("Zakonczono pomiary\n")
 
     imu_thread.join()
     uart_thread.join()
+    emotion_thread.join()
 
+    emotion_recognition.free_resources()
     uart.close()
 
 
