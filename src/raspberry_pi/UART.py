@@ -1,46 +1,36 @@
 import serial
-import struct
-
 
 class UART:
 
     def __init__(self, port):
         self.port = port
         self.serial = serial.Serial(port, 9600)
-        self.data_string = None
-        try:
-            self.serial.open()
-        except:
-            print("UART nie działa stupid!")
+        self.data = None
+        self.gas_value = None
+        self.pulse_value = None
 
-
-    def read_message(self):
-        if(self.data_string is not None):
-            print("Jakies dane sa juz w buforze, wez je!")
-            return
-        data = self.serial.readline()
-        self.data_string = str(data, encoding='utf-8')
-        self.data_string.strip("\n")
 
     def get_message(self):
-        if(self.data_string is None):
-            print("Nie dostales zadnej wiadomosci, najpierw cos odbierz!")
-        type = self.__check_message_type()
-        value = struct.unpack('!f', bytes.fromhex(self.data_string))[0]
-        self.data_string = None
-        return {type: value}
-
-    def __check_message_type(self):
-        if(self.data_string is None):
-            print("Nie dostales zadnej wiadomosci, najpierw cos odbierz!")
-        message_type = self.data_string[0]
-        del self.data_string[0]
-        if(message_type == "g"):
-            return "GAS"
-        elif(message_type == "h"):
-            return "HEART"
-    
+        data = self.serial.readline()
+        iter = 0
+        if(len(data) < 11):
+            return 
+        while iter < len(data):
+            pulse_data = bytearray()
+            gas_data = bytearray()
+            if(data[iter] == int.from_bytes(b'h')):
+                iter += 1
+                while data[iter] is not int.from_bytes(b'g'):
+                    pulse_data.append(data[iter])
+                    iter += 1
+                iter += 1
+                while data[iter] is not int.from_bytes(b"\n"):
+                    gas_data.append(data[iter])
+                    iter += 1                             
+                self.pulse_value = float(pulse_data.decode("utf-8"))
+                self.gas_value = float(gas_data.decode("utf-8"))
+            iter += 1
+        return [self.pulse_value, self.gas_value]
     def close(self):
         self.serial.close()
-        
     
